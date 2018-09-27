@@ -11,7 +11,7 @@ LDFLAGS =
 .PHONY: clean test
 
 
-hello: ${obj}
+datastructures: ${obj}
 	${CC} ${LDFLAGS} -o $@ $^
 
 
@@ -24,4 +24,4 @@ test: ${test}
 
 
 clean:
-	rm -vf ${obj} ${test} hello
+	rm -vf ${obj} ${test} datastructures
