@@ -1,0 +1,6 @@
+*.o
+tests/*
+!tests/*.c
+
+# Vim swap files
+.*.sw?
