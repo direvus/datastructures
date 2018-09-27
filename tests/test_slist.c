@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include "../slist.h"
 
+/*
+ * Fill for antique versions of libcheck (thanks, TravisCI).
+ */
+#ifndef ck_assert_ptr_nonnull
+#define ck_assert_ptr_nonnull(X)  (ck_assert(X != 0))
+#endif
+
 START_TEST(test_slist_create) {
     struct slist *list = slist_create(0);
     ck_assert_ptr_nonnull(list);
