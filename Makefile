@@ -4,7 +4,7 @@ obj = $(src:.c=.o)
 test = $(src_test:.c=)
 
 CC = gcc
-CFLAGS = -O3 -Wall -Wextra -pedantic
+CFLAGS = -O3 -std=c11 -Wall -Wextra -pedantic
 LDFLAGS = 
 
 
