@@ -5,6 +5,7 @@ test = $(src_test:.c=)
 
 CC = gcc
 CFLAGS = -O3 -std=c11 -Wall -Wextra -pedantic
+TESTFLAGS = $(shell pkg-config --cflags --libs check)
 LDFLAGS = 
 
 
@@ -16,7 +17,7 @@ datastructures: ${obj}
 
 
 tests/test_%: tests/test_%.c %.o
-	${CC} ${CFLAGS} -lcheck -o $@ $^
+	${CC} ${CFLAGS} ${TESTFLAGS} -o $@ $^
 
 
 test: ${test}
