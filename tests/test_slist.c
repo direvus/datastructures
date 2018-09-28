@@ -21,6 +21,23 @@ START_TEST(test_slist_create) {
 }
 END_TEST
 
+START_TEST(test_slist_length) {
+    struct slist *list = slist_create(0);
+    ck_assert_ptr_nonnull(list);
+    ck_assert_int_eq(slist_length(0), 0);
+    ck_assert_int_eq(slist_length(list), 1);
+
+    slist_append(list, 1);
+    ck_assert_int_eq(slist_length(list), 2);
+
+    for(int i = 2; i < 1000; i++) {
+        slist_append(list, i);
+    }
+    ck_assert_int_eq(slist_length(list), 1000);
+    slist_destroy(list);
+}
+END_TEST
+
 Suite *slist_suite(void) {
     Suite *s;
     TCase *tc;
@@ -29,6 +46,7 @@ Suite *slist_suite(void) {
     tc = tcase_create("Core");
 
     tcase_add_test(tc, test_slist_create);
+    tcase_add_test(tc, test_slist_length);
     suite_add_tcase(s, tc);
 
     return s;

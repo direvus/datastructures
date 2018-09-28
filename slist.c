@@ -42,10 +42,12 @@ void slist_destroy(struct slist *list) {
     }
     struct slist *next = list->next;
     free(list);
+    list = 0;
     while(next != 0) {
         list = next;
         next = list->next;
         free(list);
+        list = 0;
     }
 }
 
