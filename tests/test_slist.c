@@ -59,6 +59,48 @@ START_TEST(test_slist_append) {
 }
 END_TEST
 
+START_TEST(test_slist_insert) {
+    struct slist *cell0 = slist_create(0);
+    /* [0] */
+    ck_assert_ptr_nonnull(cell0);
+    ck_assert_int_eq(slist_length(cell0), 1);
+
+    struct slist *cell1 = slist_insert(cell0, 0, 1);
+    /* [1, 0] */
+    ck_assert_int_eq(cell1->value, 1);
+    ck_assert_ptr_nonnull(cell1->next);
+    ck_assert_ptr_null(cell0->next);
+    ck_assert(cell1->next == cell0);
+    ck_assert_int_eq(slist_length(cell1), 2);
+
+    struct slist *list = slist_insert(cell1, 10, 2);
+    /* [1, 0, 2] */
+    ck_assert_int_eq(slist_length(list), 3);
+
+    struct slist *cell2 = list;
+    while(cell2->next != 0) {
+        cell2 = cell2->next;
+    }
+    ck_assert_ptr_null(cell2->next);
+    ck_assert_int_eq(cell2->value, 2);
+    ck_assert(cell0->next == cell2);
+
+    list = slist_insert(list, -1, 3);
+    /* [1, 0, 3, 2] */
+    ck_assert_int_eq(slist_length(list), 4);
+    struct slist *cell3;
+    for(cell3 = list; cell3->value != 3; cell3 = cell3->next) {
+    }
+    ck_assert_ptr_nonnull(cell3->next);
+    ck_assert_int_eq(cell3->value, 3);
+    ck_assert(cell0->next == cell3);
+    ck_assert(cell3->next == cell2);
+    ck_assert_ptr_null(cell2->next);
+
+    slist_destroy(list);
+}
+END_TEST
+
 Suite *slist_suite(void) {
     Suite *s;
     TCase *tc;
@@ -69,6 +111,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_create);
     tcase_add_test(tc, test_slist_length);
     tcase_add_test(tc, test_slist_append);
+    tcase_add_test(tc, test_slist_insert);
     suite_add_tcase(s, tc);
 
     return s;
