@@ -3,15 +3,19 @@
 #include "../slist.h"
 
 /*
- * Fill for antique versions of libcheck (thanks, TravisCI).
+ * Fills for antique versions of libcheck (thanks, TravisCI).
  */
 #ifndef ck_assert_ptr_nonnull
 #define ck_assert_ptr_nonnull(X)  (ck_assert(X != 0))
+#endif
+#ifndef ck_assert_ptr_null
+#define ck_assert_ptr_null(X)  (ck_assert(X == 0))
 #endif
 
 START_TEST(test_slist_create) {
     struct slist *list = slist_create(0);
     ck_assert_ptr_nonnull(list);
+    ck_assert_ptr_null(list->next);
     ck_assert_int_eq(list->value, 0);
     free(list);
 }

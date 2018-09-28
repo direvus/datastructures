@@ -27,6 +27,7 @@ struct slist *slist_create(int value) {
     struct slist *cell;
     cell = malloc(sizeof *cell);
     if(cell != 0) {
+        cell->next = 0;
         cell->value = value;
     }
     return cell;
