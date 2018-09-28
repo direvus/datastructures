@@ -38,6 +38,27 @@ START_TEST(test_slist_length) {
 }
 END_TEST
 
+START_TEST(test_slist_append) {
+    struct slist *list = slist_create(0);
+    ck_assert_ptr_nonnull(list);
+    ck_assert_int_eq(slist_length(list), 1);
+
+    struct slist *cell1 = slist_append(list, 1);
+    ck_assert_int_eq(cell1->value, 1);
+    ck_assert_ptr_null(cell1->next);
+    ck_assert(list->next == cell1);
+    ck_assert_int_eq(slist_length(list), 2);
+
+    struct slist *cell2 = slist_append(list, 2);
+    ck_assert_int_eq(cell2->value, 2);
+    ck_assert_ptr_null(cell2->next);
+    ck_assert(cell1->next == cell2);
+
+    ck_assert_int_eq(slist_length(list), 3);
+    slist_destroy(list);
+}
+END_TEST
+
 Suite *slist_suite(void) {
     Suite *s;
     TCase *tc;
@@ -47,6 +68,7 @@ Suite *slist_suite(void) {
 
     tcase_add_test(tc, test_slist_create);
     tcase_add_test(tc, test_slist_length);
+    tcase_add_test(tc, test_slist_append);
     suite_add_tcase(s, tc);
 
     return s;
