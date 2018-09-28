@@ -101,6 +101,65 @@ START_TEST(test_slist_insert) {
 }
 END_TEST
 
+START_TEST(test_slist_get) {
+    struct slist *list = slist_create(0);
+    ck_assert_ptr_nonnull(list);
+    slist_append(list, 1);
+    slist_append(list, 2);
+    slist_append(list, 3);
+    slist_append(list, 4);
+
+    struct slist *cell = slist_get(list, 0);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 0);
+
+    cell = slist_get(list, 1);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 1);
+
+    cell = slist_get(list, 2);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 2);
+
+    cell = slist_get(list, 3);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 3);
+
+    cell = slist_get(list, 4);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 4);
+
+    cell = slist_get(list, -5);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 0);
+
+    cell = slist_get(list, -4);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 1);
+
+    cell = slist_get(list, -3);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 2);
+
+    cell = slist_get(list, -2);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 3);
+
+    cell = slist_get(list, -1);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 4);
+
+    /* Out of bounds */
+    cell = slist_get(list, 5);
+    ck_assert_ptr_null(cell);
+
+    cell = slist_get(list, -6);
+    ck_assert_ptr_null(cell);
+
+    slist_destroy(list);
+}
+END_TEST
+
 Suite *slist_suite(void) {
     Suite *s;
     TCase *tc;
@@ -112,6 +171,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_length);
     tcase_add_test(tc, test_slist_append);
     tcase_add_test(tc, test_slist_insert);
+    tcase_add_test(tc, test_slist_get);
     suite_add_tcase(s, tc);
 
     return s;

@@ -70,6 +70,33 @@ struct slist *slist_append(struct slist *list, int value) {
 }
 
 /*
+ * Get the slist cell in 'list' at the given position.
+ *
+ * Non-negative values of 'pos' are counted from 'list' as position zero.
+ * Negative values of 'pos' are counted from the last element as position -1.
+ *
+ * Return a NULL pointer if the requested position does not exist in the list.
+ */
+struct slist *slist_get(struct slist *list, int pos) {
+    int len = slist_length(list);
+    if(pos < 0) {
+        pos += len;
+        if(pos < 0) {
+            return 0;
+        }
+    }
+    if(pos >= len) {
+        return 0;
+    }
+    for(int i = 0; list != 0; list = list->next, i++) {
+        if(i == pos) {
+            return list;
+        }
+    }
+    return 0;
+}
+
+/*
  * Insert an integer as a new cell into list at the given position.
  * Return a pointer to the first cell of the list, or NULL on
  * failure.
