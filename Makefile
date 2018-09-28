@@ -17,7 +17,7 @@ datastructures: ${obj}
 
 
 tests/test_%: tests/test_%.c %.o
-	${CC} ${CFLAGS} ${TESTFLAGS} -o $@ $^
+	${CC} ${CFLAGS} -o $@ $^ ${TESTFLAGS}
 
 
 test: ${test}
