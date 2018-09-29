@@ -216,6 +216,24 @@ START_TEST(test_slist_delete) {
 }
 END_TEST
 
+START_TEST(test_slist_json) {
+    ck_assert_str_eq(slist_json(0), "[]");
+
+    struct slist *list = slist_create(0);
+    ck_assert_str_eq(slist_json(list), "[0]");
+
+    slist_append(list, 1);
+    ck_assert_str_eq(slist_json(list), "[0,1]");
+    slist_destroy(list);
+    list = 0;
+
+    const int SIZE = 10;
+    int input[] = {-339477778, 1951527226, 1011318566, -104064784, 501816327, 1320182898, 1345528803, 1262206431, 567697681, 1208321048};
+    list = slist_from_array(input, SIZE);
+    ck_assert_str_eq(slist_json(list), "[-339477778,1951527226,1011318566,-104064784,501816327,1320182898,1345528803,1262206431,567697681,1208321048]");
+}
+END_TEST
+
 Suite *slist_suite(void) {
     Suite *s;
     TCase *tc;
@@ -230,6 +248,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_insert);
     tcase_add_test(tc, test_slist_delete);
     tcase_add_test(tc, test_slist_get);
+    tcase_add_test(tc, test_slist_json);
     suite_add_tcase(s, tc);
 
     return s;
