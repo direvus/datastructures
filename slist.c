@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <ctype.h>
+#include <errno.h>
 #include "slist.h"
 
 /*
@@ -41,8 +43,9 @@ struct slist *slist_create(int value) {
 struct slist *slist_from_array(int input[], int num) {
     struct slist *head = 0;
     struct slist *tail = 0;
+    struct slist *cell = 0;
     for(int i = 0; i < num; i++) {
-        struct slist *cell = slist_create(input[i]);
+        cell = slist_create(input[i]);
         if(!head) {
             head = cell;
         }
@@ -273,7 +276,7 @@ struct slist *slist_slice(struct slist *source, int start, int end) {
  * The result is a newly malloc'd string.  It is the caller's responsibility to
  * free the string.
  */
-char *slist_json(struct slist *list) {
+char *slist_to_json(struct slist *list) {
     /*
      * Get number of bytes needed to write the longest int value.  Assume it's
      * not more than 64 bytes.
@@ -300,4 +303,55 @@ char *slist_json(struct slist *list) {
     }
     result[pos] = ']';
     return result;
+}
+
+/*
+ * Return a pointer to a new list built from nul-terminated JSON ASCII text.
+ *
+ * The JSON text must decode to a single flat list of integers.  If the JSON
+ * text does not represent a list, or if the list is empty, or if any of the
+ * list's elements cannot be converted to an int, return a NULL pointer.
+ */
+struct slist *slist_from_json(char *json) {
+    /* Skip whitespace */
+    while(isspace(*json)) {
+        json++;
+    }
+
+    if(*(json++) != '[') {
+        return 0;
+    }
+
+    struct slist *head = 0;
+    struct slist *tail = 0;
+    struct slist *cell = 0;
+    char *pos = 0;
+    long int value;
+    while(*json != '\0') {
+        errno = 0;
+        value = strtol(json, &pos, 10);
+        if(json == pos || errno > 0 || value < INT_MIN || value > INT_MAX) {
+            break;
+        }
+        json = pos;
+        cell = slist_create((int) value);
+        if(!head) {
+            head = cell;
+        }
+        if(tail != 0) {
+            tail->next = cell;
+        }
+        tail = cell;
+
+        while(isspace(*json)) {
+            json++;
+        }
+        if(*json == ']') {
+            return head;
+        } else if(*(json++) != ',') {
+            break;
+        }
+    }
+    slist_destroy(head);
+    return 0;
 }

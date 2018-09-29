@@ -14,4 +14,5 @@ struct slist *slist_find(struct slist *list, int value);
 struct slist *slist_slice(struct slist *source, int start, int end);
 struct slist *slist_insert(struct slist *list, int pos, int value);
 struct slist *slist_delete(struct slist *list, int pos);
-char *slist_json(struct slist *list);
+char *slist_to_json(struct slist *list);
+struct slist *slist_from_json(char *json);
