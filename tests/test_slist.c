@@ -22,17 +22,17 @@ START_TEST(test_slist_create) {
 END_TEST
 
 START_TEST(test_slist_from_array) {
-    const int size = 10;
+    const int SIZE = 10;
     int input[] = {-339477778, 1951527226, 1011318566, -104064784, 501816327, 1320182898, 1345528803, 1262206431, 567697681, 1208321048};
 
     ck_assert_ptr_null(slist_from_array(input, 0));
 
-    struct slist *list = slist_from_array(input, size);
+    struct slist *list = slist_from_array(input, SIZE);
     ck_assert_ptr_nonnull(list);
-    ck_assert_int_eq(slist_length(list), size);
+    ck_assert_int_eq(slist_length(list), SIZE);
 
     struct slist *cell = list;
-    for(int i = 0; i < size && cell != 0; i++, cell = cell->next) {
+    for(int i = 0; i < SIZE && cell != 0; i++, cell = cell->next) {
         ck_assert_int_eq(input[i], cell->value);
     }
     slist_destroy(list);
