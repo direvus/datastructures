@@ -178,6 +178,49 @@ START_TEST(test_slist_get) {
 }
 END_TEST
 
+START_TEST(test_slist_slice) {
+    ck_assert_ptr_null(slist_slice(0, 0, 0));
+
+    struct slist *list = slist_create(0);
+    ck_assert_ptr_nonnull(list);
+    slist_append(list, 1);
+    slist_append(list, 2);
+    slist_append(list, 3);
+    slist_append(list, 4);
+
+    /* Slices that include no cells. */
+    ck_assert_ptr_null(slist_slice(list, 0, 0));
+    ck_assert_ptr_null(slist_slice(list, 1, 0));
+    ck_assert_ptr_null(slist_slice(list, -1, 0));
+    ck_assert_ptr_null(slist_slice(list, 2, 1));
+    ck_assert_ptr_null(slist_slice(list, 5, 6));
+    ck_assert_ptr_null(slist_slice(list, -1, -2));
+
+    struct slist *slice = slist_slice(list, 0, 1);
+    ck_assert_ptr_nonnull(slice);
+    ck_assert_int_eq(slist_length(slice), 1);
+    ck_assert_int_eq(slice->value, 0);
+    slist_destroy(slice);
+
+    slice = slist_slice(list, 0, -1);
+    ck_assert_ptr_nonnull(slice);
+    ck_assert_int_eq(slist_length(slice), 4);
+    ck_assert_int_eq(slice->value, 0);
+    ck_assert_int_eq(slist_get(slice, 1)->value, 1);
+    ck_assert_int_eq(slist_get(slice, 2)->value, 2);
+    ck_assert_int_eq(slist_get(slice, 3)->value, 3);
+    slist_destroy(slice);
+
+    slice = slist_slice(list, -2, -1);
+    ck_assert_ptr_nonnull(slice);
+    ck_assert_int_eq(slist_length(slice), 1);
+    ck_assert_int_eq(slice->value, 3);
+    slist_destroy(slice);
+
+    slist_destroy(list);
+}
+END_TEST
+
 START_TEST(test_slist_delete) {
     ck_assert_ptr_null(slist_delete(0, 0));
 
@@ -257,6 +300,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_insert);
     tcase_add_test(tc, test_slist_delete);
     tcase_add_test(tc, test_slist_get);
+    tcase_add_test(tc, test_slist_slice);
     tcase_add_test(tc, test_slist_json);
     suite_add_tcase(s, tc);
 

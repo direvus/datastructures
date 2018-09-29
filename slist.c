@@ -206,6 +206,51 @@ struct slist *slist_delete(struct slist *list, int pos) {
 }
 
 /*
+ * Extract a slice from the given list.
+ *
+ * Return a pointer to the first cell of a new slist composed of elements from
+ * the source list, beginning at position 'start' and up to (but not including)
+ * position 'end'.
+ *
+ * Non-negative positions will be counted starting from the first cell as
+ * position zero.  Negative positions will be be counted from the last cell as
+ * position -1.
+ *
+ * If the requested range does not include any cells, return a NULL pointer.
+ */
+struct slist *slist_slice(struct slist *source, int start, int end) {
+    if(!source){
+        return 0;
+    }
+    int length = slist_length(source);
+    if(start < 0) {
+        start += length;
+    }
+    if(end < 0) {
+        end += length;
+    }
+    if(end <= start) {
+        return 0;
+    }
+    struct slist *head = 0;
+    struct slist *tail = 0;
+    struct slist *cell = 0;
+    for(int i = 0; i < end && source != 0; i++, source = source->next) {
+        if(i >= start) {
+            cell = slist_create(source->value);
+            if(!head) {
+                head = cell;
+            }
+            if(tail != 0) {
+                tail->next = cell;
+            }
+            tail = cell;
+        }
+    }
+    return head;
+}
+
+/*
  * Return the given list formatted as compact JSON.
  *
  * The result is a newly malloc'd string.  It is the caller's responsibility to
