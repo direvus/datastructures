@@ -178,6 +178,42 @@ START_TEST(test_slist_get) {
 }
 END_TEST
 
+START_TEST(test_slist_find) {
+    ck_assert_ptr_null(slist_find(0, 0));
+
+    struct slist *list = slist_from_array((int[]){0, 1, 2, 3, 4}, 5);
+    ck_assert_ptr_nonnull(list);
+
+    struct slist *cell = slist_find(list, 0);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 0);
+
+    cell = slist_find(list, 1);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 1);
+
+    cell = slist_find(list, 2);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 2);
+
+    cell = slist_find(list, 3);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 3);
+
+    cell = slist_find(list, 4);
+    ck_assert_ptr_nonnull(cell);
+    ck_assert_int_eq(cell->value, 4);
+
+    cell = slist_find(list, 5);
+    ck_assert_ptr_null(cell);
+
+    cell = slist_find(list, -1);
+    ck_assert_ptr_null(cell);
+
+    slist_destroy(list);
+}
+END_TEST
+
 START_TEST(test_slist_slice) {
     ck_assert_ptr_null(slist_slice(0, 0, 0));
 
@@ -300,6 +336,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_insert);
     tcase_add_test(tc, test_slist_delete);
     tcase_add_test(tc, test_slist_get);
+    tcase_add_test(tc, test_slist_find);
     tcase_add_test(tc, test_slist_slice);
     tcase_add_test(tc, test_slist_json);
     suite_add_tcase(s, tc);

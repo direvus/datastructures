@@ -118,6 +118,23 @@ struct slist *slist_get(struct slist *list, int pos) {
 }
 
 /*
+ * Return a pointer to the first cell in 'list' that contains 'value'.
+ *
+ * Return a NULL pointer if no such cell can be found.
+ */
+struct slist *slist_find(struct slist *list, int value) {
+    if(!list) {
+        return 0;
+    }
+    for(; list != 0; list = list->next) {
+        if(list->value == value) {
+            return list;
+        }
+    }
+    return 0;
+}
+
+/*
  * Insert an integer as a new cell into list at the given position.
  * Return a pointer to the first cell of the list, or NULL on
  * failure.
