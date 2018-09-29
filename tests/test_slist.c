@@ -160,6 +160,44 @@ START_TEST(test_slist_get) {
 }
 END_TEST
 
+START_TEST(test_slist_delete) {
+    ck_assert_ptr_null(slist_delete(0, 0));
+
+    struct slist *list = slist_create(0);
+    ck_assert_ptr_nonnull(list);
+    slist_append(list, 1);
+    slist_append(list, 2);
+    slist_append(list, 3);
+    slist_append(list, 4);
+
+    list = slist_delete(list, 0);
+    ck_assert_ptr_nonnull(list);
+    ck_assert_int_eq(list->value, 1);
+    ck_assert_int_eq(slist_length(list), 4);
+
+    /* Non-existent index: positive */
+    ck_assert(list == slist_delete(list, 4));
+    ck_assert_int_eq(slist_length(list), 4);
+
+    /* Non-existent index: negative */
+    ck_assert(list == slist_delete(list, -5));
+    ck_assert_int_eq(slist_length(list), 4);
+
+    ck_assert(list == slist_delete(list, 2));
+    ck_assert_int_eq(slist_length(list), 3);
+
+    ck_assert(list == slist_delete(list, 1));
+    ck_assert_int_eq(slist_length(list), 2);
+
+    ck_assert(list == slist_delete(list, -1));
+    ck_assert_ptr_null(list->next);
+    ck_assert_int_eq(list->value, 1);
+
+    list = slist_delete(list, 0);
+    ck_assert_ptr_null(list);
+}
+END_TEST
+
 Suite *slist_suite(void) {
     Suite *s;
     TCase *tc;
@@ -171,6 +209,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_length);
     tcase_add_test(tc, test_slist_append);
     tcase_add_test(tc, test_slist_insert);
+    tcase_add_test(tc, test_slist_delete);
     tcase_add_test(tc, test_slist_get);
     suite_add_tcase(s, tc);
 

@@ -145,6 +145,46 @@ struct slist *slist_insert(struct slist *list, int pos, int value) {
 }
 
 /*
+ * Delete a cell from the list at the given position.
+ *
+ * Non-negative values of 'pos' are counted from 'list' as position zero.
+ * Negative values of 'pos' are counted from the last element as position -1.
+ *
+ * If the requested position does not exist in the list, do nothing.
+ *
+ * The deleted cell's memory is freed.
+ *
+ * Return a pointer to the first cell of the resulting list, or NULL if no
+ * cells remain.
+ */
+struct slist *slist_delete(struct slist *list, int pos) {
+    if(list == 0) {
+        return 0;
+    }
+    if(pos < 0) {
+        pos += slist_length(list);
+        if(pos < 0) {
+            return list;
+        }
+    }
+    struct slist *prev = 0;
+    struct slist *cell = list;
+    for(int i = 0; cell != 0; cell = cell->next, i++) {
+        if(i == pos) {
+            if(prev != 0) {
+                prev->next = cell->next;
+            } else {
+                list = cell->next;
+            }
+            free(cell);
+            return list;
+        }
+        prev = cell;
+    }
+    return list;
+}
+
+/*
  * Return the given list formatted as compact JSON.
  *
  * The result is a newly malloc'd string.  It is the caller's responsibility to

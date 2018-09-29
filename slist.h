@@ -10,4 +10,5 @@ struct slist *slist_create(int value);
 struct slist *slist_append(struct slist *list, int value);
 struct slist *slist_get(struct slist *list, int pos);
 struct slist *slist_insert(struct slist *list, int pos, int value);
+struct slist *slist_delete(struct slist *list, int pos);
 char *slist_json(struct slist *list);
