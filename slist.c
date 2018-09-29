@@ -34,6 +34,27 @@ struct slist *slist_create(int value) {
 }
 
 /*
+ * Create a new list with values from the first 'num' elements of 'input'.
+ *
+ * Return a pointer to the first cell of the new list, or NULL on failure.
+ */
+struct slist *slist_from_array(int input[], int num) {
+    struct slist *head = 0;
+    struct slist *tail = 0;
+    for(int i = 0; i < num; i++) {
+        struct slist *cell = slist_create(input[i]);
+        if(!head) {
+            head = cell;
+        }
+        if(tail != 0) {
+            tail->next = cell;
+        }
+        tail = cell;
+    }
+    return head;
+}
+
+/*
  * Unallocate all cells in the given slist.
  */
 void slist_destroy(struct slist *list) {

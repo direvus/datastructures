@@ -21,6 +21,24 @@ START_TEST(test_slist_create) {
 }
 END_TEST
 
+START_TEST(test_slist_from_array) {
+    const int size = 10;
+    int input[] = {-339477778, 1951527226, 1011318566, -104064784, 501816327, 1320182898, 1345528803, 1262206431, 567697681, 1208321048};
+
+    ck_assert_ptr_null(slist_from_array(input, 0));
+
+    struct slist *list = slist_from_array(input, size);
+    ck_assert_ptr_nonnull(list);
+    ck_assert_int_eq(slist_length(list), size);
+
+    struct slist *cell = list;
+    for(int i = 0; i < size && cell != 0; i++, cell = cell->next) {
+        ck_assert_int_eq(input[i], cell->value);
+    }
+    slist_destroy(list);
+}
+END_TEST
+
 START_TEST(test_slist_length) {
     struct slist *list = slist_create(0);
     ck_assert_ptr_nonnull(list);
@@ -206,6 +224,7 @@ Suite *slist_suite(void) {
     tc = tcase_create("Core");
 
     tcase_add_test(tc, test_slist_create);
+    tcase_add_test(tc, test_slist_from_array);
     tcase_add_test(tc, test_slist_length);
     tcase_add_test(tc, test_slist_append);
     tcase_add_test(tc, test_slist_insert);
