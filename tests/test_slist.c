@@ -295,6 +295,41 @@ START_TEST(test_slist_delete) {
 }
 END_TEST
 
+int mod2(int x) {
+    return x % 2;
+}
+
+START_TEST(test_slist_map) {
+    struct slist *source = slist_create(0);
+    ck_assert_ptr_nonnull(source);
+    struct slist *dest = slist_map(source, &mod2);
+    ck_assert_ptr_nonnull(dest);
+    ck_assert_int_eq(slist_length(dest), 1);
+    ck_assert_int_eq(dest->value, 0);
+    slist_destroy(dest);
+
+    slist_append(source, 1);
+    slist_append(source, 2);
+    slist_append(source, 3);
+    slist_append(source, -1);
+    slist_append(source, -2);
+    slist_append(source, -3);
+    dest = slist_map(source, &mod2);
+    ck_assert_ptr_nonnull(dest);
+    ck_assert_int_eq(slist_length(dest), 7);
+    ck_assert_int_eq(dest->value, 0);
+    ck_assert_int_eq(slist_get(dest, 1)->value, 1);
+    ck_assert_int_eq(slist_get(dest, 2)->value, 0);
+    ck_assert_int_eq(slist_get(dest, 3)->value, 1);
+    ck_assert_int_eq(slist_get(dest, 4)->value, -1);
+    ck_assert_int_eq(slist_get(dest, 5)->value, 0);
+    ck_assert_int_eq(slist_get(dest, 6)->value, -1);
+    slist_destroy(dest);
+
+    slist_destroy(source);
+}
+END_TEST
+
 START_TEST(test_slist_to_json) {
     char *json = slist_to_json(0);
     ck_assert_str_eq(json, "[]");
@@ -366,6 +401,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_get);
     tcase_add_test(tc, test_slist_find);
     tcase_add_test(tc, test_slist_slice);
+    tcase_add_test(tc, test_slist_map);
     tcase_add_test(tc, test_slist_to_json);
     tcase_add_test(tc, test_slist_from_json);
     suite_add_tcase(s, tc);

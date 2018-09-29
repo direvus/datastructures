@@ -271,6 +271,33 @@ struct slist *slist_slice(struct slist *source, int start, int end) {
 }
 
 /*
+ * Create a new slist by applying a map function to each element in source.
+ *
+ * The 'fn' argument is a pointer to a map function which accepts an integer
+ * element from the source list, and returns the desired integer to be added to
+ * the destination list.
+ *
+ * Return a pointer to the first cell of the new slist.
+ */
+struct slist *slist_map(struct slist *source, int (*fn)(int)) {
+    struct slist *head = 0;
+    struct slist *tail = 0;
+    struct slist *cell = 0;
+    while(source != 0) {
+        cell = slist_create(fn(source->value));
+        if(!head) {
+            head = cell;
+        }
+        if(tail != 0) {
+            tail->next = cell;
+        }
+        tail = cell;
+        source = source->next;
+    }
+    return head;
+}
+
+/*
  * Return the given list formatted as compact JSON.
  *
  * The result is a newly malloc'd string.  It is the caller's responsibility to
