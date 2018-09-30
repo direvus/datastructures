@@ -11,11 +11,11 @@
  * Return the number of elements in the list.
  */
 int slist_length(struct slist *list) {
-    if(list == 0) {
+    if(!list) {
         return 0;
     }
     int length = 1;
-    while(list->next != 0) {
+    while(list->next) {
         list = list->next;
         length++;
     }
@@ -29,7 +29,7 @@ int slist_length(struct slist *list) {
 struct slist *slist_create(int value) {
     struct slist *cell;
     cell = malloc(sizeof *cell);
-    if(cell != 0) {
+    if(cell) {
         cell->next = 0;
         cell->value = value;
     }
@@ -50,7 +50,7 @@ struct slist *slist_from_array(int input[], int num) {
         if(!head) {
             head = cell;
         }
-        if(tail != 0) {
+        if(tail) {
             tail->next = cell;
         }
         tail = cell;
@@ -62,13 +62,13 @@ struct slist *slist_from_array(int input[], int num) {
  * Unallocate all cells in the given slist.
  */
 void slist_destroy(struct slist *list) {
-    if(list == 0) {
+    if(!list) {
         return;
     }
     struct slist *next = list->next;
     free(list);
     list = 0;
-    while(next != 0) {
+    while(next) {
         list = next;
         next = list->next;
         free(list);
@@ -81,12 +81,12 @@ void slist_destroy(struct slist *list) {
  * a pointer to the new cell created, or NULL on failure.
  */
 struct slist *slist_append(struct slist *list, int value) {
-    if(list == 0) {
+    if(!list) {
         return 0;
     }
     struct slist *cell = slist_create(value);
-    if(cell != 0) {
-        while(list->next != 0) {
+    if(cell) {
+        while(list->next) {
             list = list->next;
         }
         list->next = cell;
@@ -113,7 +113,7 @@ struct slist *slist_get(struct slist *list, int pos) {
     if(pos >= len) {
         return 0;
     }
-    for(int i = 0; list != 0; list = list->next, i++) {
+    for(int i = 0; list; list = list->next, i++) {
         if(i == pos) {
             return list;
         }
@@ -130,7 +130,7 @@ struct slist *slist_find(struct slist *list, int value) {
     if(!list) {
         return 0;
     }
-    for(; list != 0; list = list->next) {
+    for(; list; list = list->next) {
         if(list->value == value) {
             return list;
         }
@@ -152,7 +152,7 @@ struct slist *slist_find(struct slist *list, int value) {
  */
 struct slist *slist_insert(struct slist *list, int pos, int value) {
     struct slist *new = slist_create(value);
-    if(new == 0) {
+    if(!new) {
         return 0;
     }
     if(pos < 0) {
@@ -164,10 +164,10 @@ struct slist *slist_insert(struct slist *list, int pos, int value) {
     int i = 0;
     struct slist *prev = 0;
     struct slist *cell;
-    for(cell = list; cell != 0; cell = cell->next, i++) {
+    for(cell = list; cell; cell = cell->next, i++) {
         if(i == pos) {
             new->next = cell;
-            if(prev != 0) {
+            if(prev) {
                 prev->next = new;
                 return list;
             } else {
@@ -178,7 +178,7 @@ struct slist *slist_insert(struct slist *list, int pos, int value) {
     }
 
     // Never arrived at target position, append instead.
-    if(prev != 0) {
+    if(prev) {
         prev->next = new;
         return list;
     } else {
@@ -200,7 +200,7 @@ struct slist *slist_insert(struct slist *list, int pos, int value) {
  * cells remain.
  */
 struct slist *slist_delete(struct slist *list, int pos) {
-    if(list == 0) {
+    if(!list) {
         return 0;
     }
     if(pos < 0) {
@@ -211,9 +211,9 @@ struct slist *slist_delete(struct slist *list, int pos) {
     }
     struct slist *prev = 0;
     struct slist *cell = list;
-    for(int i = 0; cell != 0; cell = cell->next, i++) {
+    for(int i = 0; cell; cell = cell->next, i++) {
         if(i == pos) {
-            if(prev != 0) {
+            if(prev) {
                 prev->next = cell->next;
             } else {
                 list = cell->next;
@@ -256,13 +256,13 @@ struct slist *slist_slice(struct slist *source, int start, int end) {
     struct slist *head = 0;
     struct slist *tail = 0;
     struct slist *cell = 0;
-    for(int i = 0; i < end && source != 0; i++, source = source->next) {
+    for(int i = 0; i < end && source; i++, source = source->next) {
         if(i >= start) {
             cell = slist_create(source->value);
             if(!head) {
                 head = cell;
             }
-            if(tail != 0) {
+            if(tail) {
                 tail->next = cell;
             }
             tail = cell;
@@ -284,12 +284,12 @@ struct slist *slist_map(struct slist *source, int (*fn)(int)) {
     struct slist *head = 0;
     struct slist *tail = 0;
     struct slist *cell = 0;
-    while(source != 0) {
+    while(source) {
         cell = slist_create(fn(source->value));
         if(!head) {
             head = cell;
         }
-        if(tail != 0) {
+        if(tail) {
             tail->next = cell;
         }
         tail = cell;
@@ -311,13 +311,13 @@ struct slist *slist_filter(struct slist *source, bool (*fn)(int)) {
     struct slist *head = 0;
     struct slist *tail = 0;
     struct slist *cell = 0;
-    while(source != 0) {
+    while(source) {
         if(fn(source->value)) {
             cell = slist_create(source->value);
             if(!head) {
                 head = cell;
             }
-            if(tail != 0) {
+            if(tail) {
                 tail->next = cell;
             }
             tail = cell;
@@ -352,9 +352,9 @@ char *slist_to_json(struct slist *list) {
     memset(result, 0, size);
     result[0] = '[';
     int pos = 1;
-    for(; list != 0; list = list->next) {
+    for(; list; list = list->next) {
         pos += snprintf(&result[pos], size - pos, "%d", list->value);
-        if(list->next != 0) {
+        if(list->next) {
             result[pos++] = ',';
         }
     }
@@ -395,7 +395,7 @@ struct slist *slist_from_json(char *json) {
         if(!head) {
             head = cell;
         }
-        if(tail != 0) {
+        if(tail) {
             tail->next = cell;
         }
         tail = cell;

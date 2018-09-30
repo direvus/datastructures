@@ -33,7 +33,7 @@ START_TEST(test_slist_from_array) {
     ck_assert_int_eq(slist_length(list), SIZE);
 
     struct slist *cell = list;
-    for(int i = 0; i < SIZE && cell != 0; i++, cell = cell->next) {
+    for(int i = 0; i < SIZE && cell; i++, cell = cell->next) {
         ck_assert_int_eq(input[i], cell->value);
     }
     slist_destroy(list);
@@ -97,7 +97,7 @@ START_TEST(test_slist_insert) {
     ck_assert_int_eq(slist_length(list), 3);
 
     struct slist *cell2 = list;
-    while(cell2->next != 0) {
+    while(cell2->next) {
         cell2 = cell2->next;
     }
     ck_assert_ptr_null(cell2->next);
