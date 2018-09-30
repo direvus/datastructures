@@ -362,6 +362,27 @@ START_TEST(test_slist_filter) {
 }
 END_TEST
 
+int add(int x, int y) {
+    return x + y;
+}
+
+START_TEST(test_slist_reduce) {
+    struct slist *source = slist_create(0);
+    ck_assert_ptr_nonnull(source);
+    int result = slist_reduce(source, &add);
+    ck_assert_int_eq(result, 0);
+
+    slist_append(source, 1);
+    slist_append(source, 2);
+    slist_append(source, 3);
+    slist_append(source, -1);
+    result = slist_reduce(source, &add);
+    ck_assert_int_eq(result, 5);
+
+    slist_destroy(source);
+}
+END_TEST
+
 START_TEST(test_slist_to_json) {
     char *json = slist_to_json(0);
     ck_assert_str_eq(json, "[]");
@@ -435,6 +456,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_slice);
     tcase_add_test(tc, test_slist_map);
     tcase_add_test(tc, test_slist_filter);
+    tcase_add_test(tc, test_slist_reduce);
     tcase_add_test(tc, test_slist_to_json);
     tcase_add_test(tc, test_slist_from_json);
     suite_add_tcase(s, tc);

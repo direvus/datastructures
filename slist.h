@@ -17,5 +17,6 @@ struct slist *slist_insert(struct slist *list, int pos, int value);
 struct slist *slist_delete(struct slist *list, int pos);
 struct slist *slist_map(struct slist *list, int (*fn)(int));
 struct slist *slist_filter(struct slist *list, bool (*fn)(int));
+int slist_reduce(struct slist *list, int (*fn)(int, int));
 char *slist_to_json(struct slist *list);
 struct slist *slist_from_json(char *json);

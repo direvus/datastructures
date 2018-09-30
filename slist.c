@@ -328,6 +328,22 @@ struct slist *slist_filter(struct slist *source, bool (*fn)(int)) {
 }
 
 /*
+ * Return an integer by applying a reduce function to each element in source.
+ *
+ * The 'fn' argument is a pointer to a reduce function which accepts an integer
+ * state value, and an integer element from the source list, and returns the
+ * new state value.  State values are initialised to zero.
+ */
+int slist_reduce(struct slist *source, int (*fn)(int, int)) {
+    int state = 0;
+    while(source) {
+        state = fn(state, source->value);
+        source = source->next;
+    }
+    return state;
+}
+
+/*
  * Return the given list formatted as compact JSON.
  *
  * The result is a newly malloc'd string.  It is the caller's responsibility to
