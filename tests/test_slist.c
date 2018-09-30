@@ -1,5 +1,6 @@
 #include <check.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../slist.h"
 
 /*
@@ -330,6 +331,37 @@ START_TEST(test_slist_map) {
 }
 END_TEST
 
+bool is_even(int x) {
+    return (x % 2) == 0;
+}
+
+START_TEST(test_slist_filter) {
+    struct slist *source = slist_create(0);
+    ck_assert_ptr_nonnull(source);
+    struct slist *dest = slist_filter(source, &is_even);
+    ck_assert_ptr_nonnull(dest);
+    ck_assert_int_eq(slist_length(dest), 1);
+    ck_assert_int_eq(dest->value, 0);
+    slist_destroy(dest);
+
+    slist_append(source, 1);
+    slist_append(source, 2);
+    slist_append(source, 3);
+    slist_append(source, -1);
+    slist_append(source, -2);
+    slist_append(source, -3);
+    dest = slist_filter(source, &is_even);
+    ck_assert_ptr_nonnull(dest);
+    ck_assert_int_eq(slist_length(dest), 3);
+    ck_assert_int_eq(dest->value, 0);
+    ck_assert_int_eq(slist_get(dest, 1)->value, 2);
+    ck_assert_int_eq(slist_get(dest, 2)->value, -2);
+    slist_destroy(dest);
+
+    slist_destroy(source);
+}
+END_TEST
+
 START_TEST(test_slist_to_json) {
     char *json = slist_to_json(0);
     ck_assert_str_eq(json, "[]");
@@ -402,6 +434,7 @@ Suite *slist_suite(void) {
     tcase_add_test(tc, test_slist_find);
     tcase_add_test(tc, test_slist_slice);
     tcase_add_test(tc, test_slist_map);
+    tcase_add_test(tc, test_slist_filter);
     tcase_add_test(tc, test_slist_to_json);
     tcase_add_test(tc, test_slist_from_json);
     suite_add_tcase(s, tc);

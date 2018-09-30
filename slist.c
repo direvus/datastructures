@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <limits.h>
 #include <ctype.h>
@@ -292,6 +293,35 @@ struct slist *slist_map(struct slist *source, int (*fn)(int)) {
             tail->next = cell;
         }
         tail = cell;
+        source = source->next;
+    }
+    return head;
+}
+
+/*
+ * Create a new slist by applying a filter function to each element in source.
+ *
+ * The 'fn' argument is a pointer to a filter function which accepts an integer
+ * element from the source list, and returns a boolean to indicate whether that
+ * element ought to be included in the result list.
+ *
+ * Return a pointer to the first cell of the new slist.
+ */
+struct slist *slist_filter(struct slist *source, bool (*fn)(int)) {
+    struct slist *head = 0;
+    struct slist *tail = 0;
+    struct slist *cell = 0;
+    while(source != 0) {
+        if(fn(source->value)) {
+            cell = slist_create(source->value);
+            if(!head) {
+                head = cell;
+            }
+            if(tail != 0) {
+                tail->next = cell;
+            }
+            tail = cell;
+        }
         source = source->next;
     }
     return head;
