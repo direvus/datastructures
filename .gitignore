@@ -1,7 +1,7 @@
 *.o
 datastructures
 tests/*
-!tests/*.c
+!tests/*.[ch]
 
 # Vim swap files
 .*.sw?

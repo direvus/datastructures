@@ -1,17 +1,8 @@
 #include <check.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "./util.h"
 #include "../slist.h"
-
-/*
- * Fills for antique versions of libcheck (thanks, TravisCI).
- */
-#ifndef ck_assert_ptr_nonnull
-#define ck_assert_ptr_nonnull(X)  (ck_assert(X != 0))
-#endif
-#ifndef ck_assert_ptr_null
-#define ck_assert_ptr_null(X)  (ck_assert(X == 0))
-#endif
 
 START_TEST(test_slist_create) {
     struct slist *list = slist_create(0);
