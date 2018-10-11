@@ -26,9 +26,24 @@ START_TEST(test_hashmap_set) {
     struct hashmap *m = hashmap_create();
     ck_assert_ptr_nonnull(m);
 
-    int *v = malloc(sizeof *v);
+    /* NULL value */
+    ck_assert(!hashmap_set(m, "a", 0));
+
+    int *v;
+
+    /* Set value in empty map */
+    v = malloc(sizeof *v);
     *v = 0;
     ck_assert(hashmap_set(m, "a", v));
+
+    /* Overwrite value for existing key */
+    v = malloc(sizeof *v);
+    *v = 1;
+    ck_assert(hashmap_set(m, "a", v));
+
+    /* Set values in colliding keys */
+    ck_assert(hashmap_set(m, "anear", v));
+    ck_assert(hashmap_set(m, "dicot", v));
 
     hashmap_destroy(m);
 }
@@ -38,12 +53,43 @@ START_TEST(test_hashmap_get) {
     struct hashmap *m = hashmap_create();
     ck_assert_ptr_nonnull(m);
 
-    int *v = malloc(sizeof *v);
+    int *v, *p;
+
+    /* Non-existent key */
+    p = hashmap_get(m, "absent");
+    ck_assert_ptr_null(p);
+
+    /* Value in empty map */
+    v = malloc(sizeof *v);
     *v = 0;
     hashmap_set(m, "a", v);
-    int *p = (int *) hashmap_get(m, "a");
+    p = (int *) hashmap_get(m, "a");
     ck_assert_ptr_nonnull(p);
-    ck_assert_int_eq(*p, 0);
+    ck_assert_int_eq(*p, *v);
+
+    /* Overwrite value for existing key */
+    v = malloc(sizeof *v);
+    *v = 1;
+    hashmap_set(m, "a", v);
+    p = (int *) hashmap_get(m, "a");
+    ck_assert_ptr_nonnull(p);
+    ck_assert_int_eq(*p, *v);
+
+    /* Set values in colliding keys */
+    v = malloc(sizeof *v);
+    *v = 2;
+    hashmap_set(m, "anear", v);
+    v = malloc(sizeof *v);
+    *v = 3;
+    hashmap_set(m, "dicot", v);
+
+    p = (int *) hashmap_get(m, "anear");
+    ck_assert_ptr_nonnull(p);
+    ck_assert_int_eq(*p, 2);
+
+    p = (int *) hashmap_get(m, "dicot");
+    ck_assert_ptr_nonnull(p);
+    ck_assert_int_eq(*p, 3);
 
     hashmap_destroy(m);
 }

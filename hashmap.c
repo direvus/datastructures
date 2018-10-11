@@ -77,6 +77,9 @@ static struct hashmap_entry *hashmap_find(struct hashmap_entry *e, const char *k
  * Return whether the entry was created successfully.
  */
 bool hashmap_set(struct hashmap *m, const char *k, void *v) {
+    if (!v) {
+        return false;
+    }
     size_t i = hash_index(k, m->size);
     struct hashmap_entry *curr = m->buckets[i];
     struct hashmap_entry *prev = 0;
