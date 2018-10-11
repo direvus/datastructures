@@ -20,6 +20,10 @@ tests/test_%: tests/test_%.c %.o
 	${CC} ${CFLAGS} -o $@ $^ ${TESTFLAGS}
 
 
+tests/test_hashmap: tests/test_hashmap.c hashmap.o hash.o
+	${CC} ${CFLAGS} -o $@ $^ ${TESTFLAGS}
+
+
 test: ${test}
 	$(foreach t,$(test),$(t))
 

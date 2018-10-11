@@ -6,12 +6,19 @@
 START_TEST(test_hashmap_create) {
     struct hashmap *m = hashmap_create();
     ck_assert_ptr_nonnull(m);
-    ck_assert_int_eq(m->size, HASHMAP_INIT_SIZE);
+    ck_assert_int_gt(m->size, 0);
     ck_assert_int_eq(m->count, 0);
-    for (int i = 0; i < HASHMAP_INIT_SIZE; i++) {
+    for (size_t i = 0; i < m->size; i++) {
         ck_assert_ptr_null(m->buckets[i]);
     }
     free(m);
+}
+END_TEST
+
+START_TEST(test_hashmap_destroy) {
+    struct hashmap *m = hashmap_create();
+    /* Just checking it doesn't crash */
+    hashmap_destroy(m);
 }
 END_TEST
 
@@ -20,9 +27,9 @@ Suite *hashmap_suite(void) {
     TCase *tc;
 
     s = suite_create("Hashmap");
-    tc = tcase_create("Core");
-
+    tc = tcase_create("Create/destroy");
     tcase_add_test(tc, test_hashmap_create);
+    tcase_add_test(tc, test_hashmap_destroy);
     suite_add_tcase(s, tc);
 
     return s;
