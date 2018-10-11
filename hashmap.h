@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 struct hashmap_entry {
     struct hashmap_entry *next;
     char *key;
@@ -11,4 +13,6 @@ struct hashmap {
 };
 
 struct hashmap *hashmap_create();
-void hashmap_destroy(struct hashmap *m);
+void hashmap_destroy(struct hashmap *);
+bool hashmap_set(struct hashmap *, const char *, void *);
+void *hashmap_get(struct hashmap *, const char *);
