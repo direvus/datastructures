@@ -1,1 +1,1 @@
-unsigned int hash_shimmy2(char *);
+unsigned long hash_shimmy2(const char *);
