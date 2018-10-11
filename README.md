@@ -15,3 +15,9 @@ modern conveniences we've come to expect from the likes of Python, such as
 - searching,
 - map/filter/reduce,
 - JSON input/output.
+
+hashmap
+-------
+
+A hashmap implementation backed by singly-linked lists, using a very basic key
+hashing function.

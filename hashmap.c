@@ -34,6 +34,13 @@ void hashmap_entry_destroy(struct hashmap_entry *e) {
 void hashmap_destroy(struct hashmap *m) {
     for (size_t i = 0; i < m->size; i++) {
         if (m->buckets[i]) {
+            struct hashmap_entry *curr, *next;
+            curr = m->buckets[i];
+            while (curr) {
+                next = curr->next;
+                free(curr);
+                curr = next;
+            }
             hashmap_entry_destroy(m->buckets[i]);
             m->buckets[i] = 0;
         }
