@@ -10,7 +10,7 @@
 /*
  * Return the number of elements in the list.
  */
-int slist_length(struct slist *list) {
+int slist_length(const struct slist *list) {
     if(!list) {
         return 0;
     }
@@ -26,7 +26,7 @@ int slist_length(struct slist *list) {
  * Create a new list cell with the given value.  Return a pointer
  * to the new cell, or NULL on failure.
  */
-struct slist *slist_create(int value) {
+struct slist *slist_create(const int value) {
     struct slist *cell;
     cell = malloc(sizeof *cell);
     if(cell) {
@@ -41,7 +41,7 @@ struct slist *slist_create(int value) {
  *
  * Return a pointer to the first cell of the new list, or NULL on failure.
  */
-struct slist *slist_from_array(int input[], int num) {
+struct slist *slist_from_array(const int input[], const int num) {
     struct slist *head = 0;
     struct slist *tail = 0;
     struct slist *cell = 0;
@@ -239,7 +239,7 @@ struct slist *slist_delete(struct slist *list, int pos) {
  *
  * If the requested range does not include any cells, return a NULL pointer.
  */
-struct slist *slist_slice(struct slist *source, int start, int end) {
+struct slist *slist_slice(const struct slist *source, int start, int end) {
     if(!source){
         return 0;
     }
@@ -280,7 +280,7 @@ struct slist *slist_slice(struct slist *source, int start, int end) {
  *
  * Return a pointer to the first cell of the new slist.
  */
-struct slist *slist_map(struct slist *source, int (*fn)(int)) {
+struct slist *slist_map(const struct slist *source, int (*fn)(int)) {
     struct slist *head = 0;
     struct slist *tail = 0;
     struct slist *cell = 0;
@@ -307,7 +307,7 @@ struct slist *slist_map(struct slist *source, int (*fn)(int)) {
  *
  * Return a pointer to the first cell of the new slist.
  */
-struct slist *slist_filter(struct slist *source, bool (*fn)(int)) {
+struct slist *slist_filter(const struct slist *source, bool (*fn)(int)) {
     struct slist *head = 0;
     struct slist *tail = 0;
     struct slist *cell = 0;
@@ -334,7 +334,7 @@ struct slist *slist_filter(struct slist *source, bool (*fn)(int)) {
  * state value, and an integer element from the source list, and returns the
  * new state value.  State values are initialised to zero.
  */
-int slist_reduce(struct slist *source, int (*fn)(int, int)) {
+int slist_reduce(const struct slist *source, int (*fn)(int, int)) {
     int state = 0;
     while(source) {
         state = fn(state, source->value);
@@ -349,7 +349,7 @@ int slist_reduce(struct slist *source, int (*fn)(int, int)) {
  * The result is a newly malloc'd string.  It is the caller's responsibility to
  * free the string.
  */
-char *slist_to_json(struct slist *list) {
+char *slist_to_json(const struct slist *list) {
     /*
      * Get number of bytes needed to write the longest int value.  Assume it's
      * not more than 64 bytes.
@@ -385,7 +385,7 @@ char *slist_to_json(struct slist *list) {
  * text does not represent a list, or if the list is empty, or if any of the
  * list's elements cannot be converted to an int, return a NULL pointer.
  */
-struct slist *slist_from_json(char *json) {
+struct slist *slist_from_json(const char *json) {
     /* Skip whitespace */
     while(isspace(*json)) {
         json++;
