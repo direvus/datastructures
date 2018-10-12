@@ -137,6 +137,52 @@ START_TEST(test_hashmap_delete) {
 }
 END_TEST
 
+START_TEST(test_hashmap_exists) {
+    struct hashmap *m = hashmap_create();
+    ck_assert_ptr_nonnull(m);
+
+    /* Check non-existent key */
+    ck_assert(!hashmap_exists(m, "absent"));
+
+    int *v;
+
+    /* Set and check in empty map */
+    v = malloc(sizeof *v);
+    *v = 0;
+    hashmap_set(m, "a", v);
+    ck_assert(hashmap_exists(m, "a"));
+
+    /* Set and check colliding keys */
+    v = malloc(sizeof *v);
+    *v = 2;
+    hashmap_set(m, "anear", v);
+    v = malloc(sizeof *v);
+    *v = 3;
+    hashmap_set(m, "dicot", v);
+
+    ck_assert(hashmap_exists(m, "anear"));
+    ck_assert(hashmap_exists(m, "dicot"));
+
+    /* Delete and check */
+    hashmap_delete(m, "anear");
+    ck_assert(!hashmap_exists(m, "anear"));
+    ck_assert(hashmap_exists(m, "dicot"));
+    ck_assert(hashmap_exists(m, "a"));
+
+    hashmap_delete(m, "dicot");
+    ck_assert(!hashmap_exists(m, "anear"));
+    ck_assert(!hashmap_exists(m, "dicot"));
+    ck_assert(hashmap_exists(m, "a"));
+
+    hashmap_delete(m, "a");
+    ck_assert(!hashmap_exists(m, "anear"));
+    ck_assert(!hashmap_exists(m, "dicot"));
+    ck_assert(!hashmap_exists(m, "a"));
+
+    hashmap_destroy(m);
+}
+END_TEST
+
 Suite *hashmap_suite(void) {
     Suite *s;
     TCase *tc;
@@ -151,6 +197,10 @@ Suite *hashmap_suite(void) {
     tcase_add_test(tc, test_hashmap_set);
     tcase_add_test(tc, test_hashmap_get);
     tcase_add_test(tc, test_hashmap_delete);
+    suite_add_tcase(s, tc);
+
+    tc = tcase_create("Existence");
+    tcase_add_test(tc, test_hashmap_exists);
     suite_add_tcase(s, tc);
 
     return s;

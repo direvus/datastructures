@@ -17,3 +17,4 @@ void hashmap_destroy(struct hashmap *);
 bool hashmap_set(struct hashmap *, const char *, void *);
 void *hashmap_get(struct hashmap *, const char *);
 bool hashmap_delete(struct hashmap *, const char *);
+bool hashmap_exists(const struct hashmap *, const char *);

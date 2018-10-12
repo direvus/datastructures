@@ -72,6 +72,18 @@ static struct hashmap_entry *hashmap_find(struct hashmap_entry *e, const char *k
     return 0;
 }
 
+bool hashmap_exists(const struct hashmap *m, const char *k) {
+    size_t i = hash_index(k, m->size);
+    struct hashmap_entry *e = m->buckets[i];
+    while(e) {
+        if (strcmp(e->key, k) == 0) {
+            return true;
+        }
+        e = e->next;
+    }
+    return false;
+}
+
 /*
  * Set key 'k' to value 'v' in hashmap 'm'.
  *
