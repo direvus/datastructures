@@ -133,3 +133,33 @@ void *hashmap_get(struct hashmap *m, const char *k) {
     }
     return 0;
 }
+
+/*
+ * Delete the entry for 'k' from hashmap 'm'.
+ *
+ * If the key exists in the map, delete its entry and return true.  Otherwise,
+ * do nothing and return false.
+ */
+bool hashmap_delete(struct hashmap *m, const char *k) {
+    if (!m || !k) {
+        return false;
+    }
+    size_t i = hash_index(k, m->size);
+    struct hashmap_entry *curr = m->buckets[i];
+    struct hashmap_entry *prev = 0;
+    while(curr) {
+        if (strcmp(curr->key, k) == 0) {
+            if (prev) {
+                prev->next = curr->next;
+            } else {
+                m->buckets[i] = curr->next;
+            }
+            hashmap_entry_destroy(curr);
+            m->count--;
+            return true;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    return false;
+}
