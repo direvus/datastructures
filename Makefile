@@ -9,7 +9,15 @@ TESTFLAGS = $(shell pkg-config --cflags --libs check)
 LDFLAGS = 
 
 
-.PHONY: clean test
+.PHONY: all debug test clean
+
+
+all: datastructures
+
+
+debug: CFLAGS := $(patsubst -O%,-g,$(CFLAGS))
+debug: LDFLAGS += -g
+debug: datastructures
 
 
 datastructures: ${obj}
@@ -24,7 +32,7 @@ tests/test_hashmap: tests/test_hashmap.c hashmap.o hash.o
 	${CC} ${CFLAGS} -o $@ $^ ${TESTFLAGS}
 
 
-test: ${test}
+test: debug ${test}
 	$(foreach t,$(test),$(t))
 
 
