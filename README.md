@@ -5,8 +5,8 @@ datastructures
 
 Fun with data structures and unit testing in C.
 
-slist
------
+slisti
+------
 
 A singly-linked integer list implementation that aims to offer some of the
 modern conveniences we've come to expect from the likes of Python, such as

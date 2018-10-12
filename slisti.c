@@ -5,12 +5,12 @@
 #include <limits.h>
 #include <ctype.h>
 #include <errno.h>
-#include "slist.h"
+#include "slisti.h"
 
 /*
  * Return the number of elements in the list.
  */
-int slist_length(const struct slist *list) {
+int slisti_length(const struct slisti *list) {
     if(!list) {
         return 0;
     }
@@ -26,8 +26,8 @@ int slist_length(const struct slist *list) {
  * Create a new list cell with the given value.  Return a pointer
  * to the new cell, or NULL on failure.
  */
-struct slist *slist_create(const int value) {
-    struct slist *cell;
+struct slisti *slisti_create(const int value) {
+    struct slisti *cell;
     cell = malloc(sizeof *cell);
     if(cell) {
         cell->next = 0;
@@ -41,12 +41,12 @@ struct slist *slist_create(const int value) {
  *
  * Return a pointer to the first cell of the new list, or NULL on failure.
  */
-struct slist *slist_from_array(const int input[], const int num) {
-    struct slist *head = 0;
-    struct slist *tail = 0;
-    struct slist *cell = 0;
+struct slisti *slisti_from_array(const int input[], const int num) {
+    struct slisti *head = 0;
+    struct slisti *tail = 0;
+    struct slisti *cell = 0;
     for(int i = 0; i < num; i++) {
-        cell = slist_create(input[i]);
+        cell = slisti_create(input[i]);
         if(!head) {
             head = cell;
         }
@@ -59,13 +59,13 @@ struct slist *slist_from_array(const int input[], const int num) {
 }
 
 /*
- * Unallocate all cells in the given slist.
+ * Unallocate all cells in the given slisti.
  */
-void slist_destroy(struct slist *list) {
+void slisti_destroy(struct slisti *list) {
     if(!list) {
         return;
     }
-    struct slist *next = list->next;
+    struct slisti *next = list->next;
     free(list);
     list = 0;
     while(next) {
@@ -77,14 +77,14 @@ void slist_destroy(struct slist *list) {
 }
 
 /*
- * Append an integer to the end of an slist as a new cell.  Return
+ * Append an integer to the end of an slisti as a new cell.  Return
  * a pointer to the new cell created, or NULL on failure.
  */
-struct slist *slist_append(struct slist *list, int value) {
+struct slisti *slisti_append(struct slisti *list, int value) {
     if(!list) {
         return 0;
     }
-    struct slist *cell = slist_create(value);
+    struct slisti *cell = slisti_create(value);
     if(cell) {
         while(list->next) {
             list = list->next;
@@ -95,15 +95,15 @@ struct slist *slist_append(struct slist *list, int value) {
 }
 
 /*
- * Get the slist cell in 'list' at the given position.
+ * Get the slisti cell in 'list' at the given position.
  *
  * Non-negative values of 'pos' are counted from 'list' as position zero.
  * Negative values of 'pos' are counted from the last element as position -1.
  *
  * Return a NULL pointer if the requested position does not exist in the list.
  */
-struct slist *slist_get(struct slist *list, int pos) {
-    int len = slist_length(list);
+struct slisti *slisti_get(struct slisti *list, int pos) {
+    int len = slisti_length(list);
     if(pos < 0) {
         pos += len;
         if(pos < 0) {
@@ -126,7 +126,7 @@ struct slist *slist_get(struct slist *list, int pos) {
  *
  * Return a NULL pointer if no such cell can be found.
  */
-struct slist *slist_find(struct slist *list, int value) {
+struct slisti *slisti_find(struct slisti *list, int value) {
     if(!list) {
         return 0;
     }
@@ -150,20 +150,20 @@ struct slist *slist_find(struct slist *list, int value) {
  * to the end of the list.  If the position is too low, the cell
  * will be inserted at the beginning of the list.
  */
-struct slist *slist_insert(struct slist *list, int pos, int value) {
-    struct slist *new = slist_create(value);
+struct slisti *slisti_insert(struct slisti *list, int pos, int value) {
+    struct slisti *new = slisti_create(value);
     if(!new) {
         return 0;
     }
     if(pos < 0) {
-        pos += slist_length(list);
+        pos += slisti_length(list);
         if(pos < 0) {
             pos = 0;
         }
     }
     int i = 0;
-    struct slist *prev = 0;
-    struct slist *cell;
+    struct slisti *prev = 0;
+    struct slisti *cell;
     for(cell = list; cell; cell = cell->next, i++) {
         if(i == pos) {
             new->next = cell;
@@ -199,18 +199,18 @@ struct slist *slist_insert(struct slist *list, int pos, int value) {
  * Return a pointer to the first cell of the resulting list, or NULL if no
  * cells remain.
  */
-struct slist *slist_delete(struct slist *list, int pos) {
+struct slisti *slisti_delete(struct slisti *list, int pos) {
     if(!list) {
         return 0;
     }
     if(pos < 0) {
-        pos += slist_length(list);
+        pos += slisti_length(list);
         if(pos < 0) {
             return list;
         }
     }
-    struct slist *prev = 0;
-    struct slist *cell = list;
+    struct slisti *prev = 0;
+    struct slisti *cell = list;
     for(int i = 0; cell; cell = cell->next, i++) {
         if(i == pos) {
             if(prev) {
@@ -229,7 +229,7 @@ struct slist *slist_delete(struct slist *list, int pos) {
 /*
  * Extract a slice from the given list.
  *
- * Return a pointer to the first cell of a new slist composed of elements from
+ * Return a pointer to the first cell of a new slisti composed of elements from
  * the source list, beginning at position 'start' and up to (but not including)
  * position 'end'.
  *
@@ -239,11 +239,11 @@ struct slist *slist_delete(struct slist *list, int pos) {
  *
  * If the requested range does not include any cells, return a NULL pointer.
  */
-struct slist *slist_slice(const struct slist *source, int start, int end) {
+struct slisti *slisti_slice(const struct slisti *source, int start, int end) {
     if(!source){
         return 0;
     }
-    int length = slist_length(source);
+    int length = slisti_length(source);
     if(start < 0) {
         start += length;
     }
@@ -253,12 +253,12 @@ struct slist *slist_slice(const struct slist *source, int start, int end) {
     if(end <= start) {
         return 0;
     }
-    struct slist *head = 0;
-    struct slist *tail = 0;
-    struct slist *cell = 0;
+    struct slisti *head = 0;
+    struct slisti *tail = 0;
+    struct slisti *cell = 0;
     for(int i = 0; i < end && source; i++, source = source->next) {
         if(i >= start) {
-            cell = slist_create(source->value);
+            cell = slisti_create(source->value);
             if(!head) {
                 head = cell;
             }
@@ -272,20 +272,20 @@ struct slist *slist_slice(const struct slist *source, int start, int end) {
 }
 
 /*
- * Create a new slist by applying a map function to each element in source.
+ * Create a new slisti by applying a map function to each element in source.
  *
  * The 'fn' argument is a pointer to a map function which accepts an integer
  * element from the source list, and returns the desired integer to be added to
  * the destination list.
  *
- * Return a pointer to the first cell of the new slist.
+ * Return a pointer to the first cell of the new slisti.
  */
-struct slist *slist_map(const struct slist *source, int (*fn)(int)) {
-    struct slist *head = 0;
-    struct slist *tail = 0;
-    struct slist *cell = 0;
+struct slisti *slisti_map(const struct slisti *source, int (*fn)(int)) {
+    struct slisti *head = 0;
+    struct slisti *tail = 0;
+    struct slisti *cell = 0;
     while(source) {
-        cell = slist_create(fn(source->value));
+        cell = slisti_create(fn(source->value));
         if(!head) {
             head = cell;
         }
@@ -299,21 +299,21 @@ struct slist *slist_map(const struct slist *source, int (*fn)(int)) {
 }
 
 /*
- * Create a new slist by applying a filter function to each element in source.
+ * Create a new slisti by applying a filter function to each element in source.
  *
  * The 'fn' argument is a pointer to a filter function which accepts an integer
  * element from the source list, and returns a boolean to indicate whether that
  * element ought to be included in the result list.
  *
- * Return a pointer to the first cell of the new slist.
+ * Return a pointer to the first cell of the new slisti.
  */
-struct slist *slist_filter(const struct slist *source, bool (*fn)(int)) {
-    struct slist *head = 0;
-    struct slist *tail = 0;
-    struct slist *cell = 0;
+struct slisti *slisti_filter(const struct slisti *source, bool (*fn)(int)) {
+    struct slisti *head = 0;
+    struct slisti *tail = 0;
+    struct slisti *cell = 0;
     while(source) {
         if(fn(source->value)) {
-            cell = slist_create(source->value);
+            cell = slisti_create(source->value);
             if(!head) {
                 head = cell;
             }
@@ -334,7 +334,7 @@ struct slist *slist_filter(const struct slist *source, bool (*fn)(int)) {
  * state value, and an integer element from the source list, and returns the
  * new state value.  State values are initialised to zero.
  */
-int slist_reduce(const struct slist *source, int (*fn)(int, int)) {
+int slisti_reduce(const struct slisti *source, int (*fn)(int, int)) {
     int state = 0;
     while(source) {
         state = fn(state, source->value);
@@ -349,7 +349,7 @@ int slist_reduce(const struct slist *source, int (*fn)(int, int)) {
  * The result is a newly malloc'd string.  It is the caller's responsibility to
  * free the string.
  */
-char *slist_to_json(const struct slist *list) {
+char *slisti_to_json(const struct slisti *list) {
     /*
      * Get number of bytes needed to write the longest int value.  Assume it's
      * not more than 64 bytes.
@@ -357,7 +357,7 @@ char *slist_to_json(const struct slist *list) {
     int LEN = 64;
     char buf[LEN];
     int int_size = snprintf(buf, LEN, "%d", INT_MIN);
-    int length = slist_length(list);
+    int length = slisti_length(list);
 
     /*
      * All integers in the list, plus comma delimiters, plus surrounding square
@@ -385,7 +385,7 @@ char *slist_to_json(const struct slist *list) {
  * text does not represent a list, or if the list is empty, or if any of the
  * list's elements cannot be converted to an int, return a NULL pointer.
  */
-struct slist *slist_from_json(const char *json) {
+struct slisti *slisti_from_json(const char *json) {
     /* Skip whitespace */
     while(isspace(*json)) {
         json++;
@@ -395,9 +395,9 @@ struct slist *slist_from_json(const char *json) {
         return 0;
     }
 
-    struct slist *head = 0;
-    struct slist *tail = 0;
-    struct slist *cell = 0;
+    struct slisti *head = 0;
+    struct slisti *tail = 0;
+    struct slisti *cell = 0;
     char *pos = 0;
     long int value;
     while(*json != '\0') {
@@ -407,7 +407,7 @@ struct slist *slist_from_json(const char *json) {
             break;
         }
         json = pos;
-        cell = slist_create((int) value);
+        cell = slisti_create((int) value);
         if(!head) {
             head = cell;
         }
@@ -425,6 +425,6 @@ struct slist *slist_from_json(const char *json) {
             break;
         }
     }
-    slist_destroy(head);
+    slisti_destroy(head);
     return 0;
 }

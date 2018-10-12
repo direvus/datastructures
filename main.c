@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "slist.h"
+#include "slisti.h"
 
-void print_slist(struct slist *list) {
-    printf("slist(%d):\n", slist_length(list));
+void print_slisti(struct slisti *list) {
+    printf("slisti(%d):\n", slisti_length(list));
     for(; list != 0; list = list->next) {
         printf("%p %d\n", (void *)list->next, list->value);
     }
@@ -10,17 +10,17 @@ void print_slist(struct slist *list) {
 }
 
 int main(void) {
-    struct slist *list = slist_create(1);
+    struct slisti *list = slisti_create(1);
     if(list != 0) {
-        slist_append(list, 1);
-        slist_append(list, 2);
-        slist_append(list, 3);
-        print_slist(list);
+        slisti_append(list, 1);
+        slisti_append(list, 2);
+        slisti_append(list, 3);
+        print_slisti(list);
         printf("\n");
 
-        list = slist_insert(list, 0, 0);
-        print_slist(list);
-        slist_destroy(list);
+        list = slisti_insert(list, 0, 0);
+        print_slisti(list);
+        slisti_destroy(list);
     }
     return 0;
 }
