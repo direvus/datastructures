@@ -207,6 +207,7 @@ START_TEST(test_hashmap_copy) {
     }
 
     hashmap_destroy(src);
+    hashmap_destroy(dst);
 }
 END_TEST
 
