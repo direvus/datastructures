@@ -49,6 +49,28 @@ void hashmap_destroy(struct hashmap *m) {
     free(m);
 }
 
+/*
+ * Copy the contents of hashmap 'src' into 'dst'.
+ *
+ * Afterwards all the keys present in 'src' will be present in 'dst' with the
+ * same values as in 'src'.  Any keys already present in 'dst' that are absent
+ * in 'src' will be unaffected.
+ */
+void hashmap_copy(struct hashmap *dst, struct hashmap *src) {
+    if (!src || !dst) {
+        return;
+    }
+
+    struct hashmap_entry *e;
+    for (unsigned int i = 0; i < src->size; i++) {
+        e = src->buckets[i];
+        while(e) {
+            hashmap_set(dst, e->key, e->value);
+            e = e->next;
+        }
+    }
+}
+
 static inline unsigned long hash_bytes(const char *key) {
     return hash_shimmy2(key);
 }

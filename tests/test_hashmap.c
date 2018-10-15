@@ -183,6 +183,33 @@ START_TEST(test_hashmap_exists) {
 }
 END_TEST
 
+START_TEST(test_hashmap_copy) {
+    struct hashmap *src = hashmap_create();
+    ck_assert_ptr_nonnull(src);
+
+    int *v;
+    char s[] = "a";
+    for (int i = 1; i <= 26; i++) {
+        v = malloc(sizeof *v);
+        *v = i;
+        hashmap_set(src, s, v);
+        s[0]++;
+    }
+
+    struct hashmap *dst = hashmap_create();
+    hashmap_copy(dst, src);
+    ck_assert_int_eq(src->count, dst->count);
+
+    s[0] = 'a';
+    for (int i = 1; i <= 26; i++) {
+        ck_assert_int_eq(*((int *) hashmap_get(dst, s)), i);
+        s[0]++;
+    }
+
+    hashmap_destroy(src);
+}
+END_TEST
+
 Suite *hashmap_suite(void) {
     Suite *s;
     TCase *tc;
@@ -203,6 +230,9 @@ Suite *hashmap_suite(void) {
     tcase_add_test(tc, test_hashmap_exists);
     suite_add_tcase(s, tc);
 
+    tc = tcase_create("Copy");
+    tcase_add_test(tc, test_hashmap_copy);
+    suite_add_tcase(s, tc);
     return s;
 }
 
