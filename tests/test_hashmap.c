@@ -184,10 +184,23 @@ START_TEST(test_hashmap_exists) {
 END_TEST
 
 START_TEST(test_hashmap_copy) {
+    /* Doesn't crash */
+    hashmap_copy(0, 0);
+
     struct hashmap *src = hashmap_create();
     ck_assert_ptr_nonnull(src);
+    struct hashmap *dst = hashmap_create();
 
     int *v;
+    v = malloc(sizeof *v);
+    *v = 0;
+    hashmap_set(src, "in-source", v);
+
+    v = malloc(sizeof *v);
+    *v = 692844;
+    hashmap_set(dst, "in-source", v);
+    hashmap_set(dst, "not-in-source", v);
+
     char s[] = "a";
     for (int i = 1; i <= 26; i++) {
         v = malloc(sizeof *v);
@@ -196,15 +209,20 @@ START_TEST(test_hashmap_copy) {
         s[0]++;
     }
 
-    struct hashmap *dst = hashmap_create();
     hashmap_copy(dst, src);
-    ck_assert_int_eq(src->count, dst->count);
+    ck_assert_int_eq(dst->count, 28);
 
     s[0] = 'a';
     for (int i = 1; i <= 26; i++) {
         ck_assert_int_eq(*((int *) hashmap_get(dst, s)), i);
         s[0]++;
     }
+
+    /* Keys in dst but not src are preserved. */
+    ck_assert_int_eq(*((int *) hashmap_get(dst, "not-in-source")), 692844);
+
+    /* Keys in both dst and src are overwritten. */
+    ck_assert_int_eq(*((int *) hashmap_get(dst, "in-source")), 0);
 
     hashmap_destroy(src);
     hashmap_destroy(dst);
