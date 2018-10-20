@@ -5,6 +5,7 @@ test = $(src_test:.c=)
 
 CC = gcc
 CFLAGS = -O3 -std=c11 -Wall -Wextra -pedantic
+DBGFLAGS = -g -std=c11 -Wall -Wextra -pedantic
 TESTFLAGS = $(shell pkg-config --cflags --libs check)
 LDFLAGS = 
 
@@ -15,7 +16,7 @@ LDFLAGS =
 all: datastructures
 
 
-debug: CFLAGS := $(patsubst -O%,-g,$(CFLAGS))
+debug: CFLAGS := ${DBGFLAGS}
 debug: LDFLAGS += -g
 debug: datastructures
 
@@ -25,11 +26,11 @@ datastructures: ${obj}
 
 
 tests/test_%: tests/test_%.c %.o
-	${CC} ${CFLAGS} -o $@ $^ ${TESTFLAGS}
+	${CC} ${DBGFLAGS} -o $@ $^ ${TESTFLAGS}
 
 
 tests/test_hashmap: tests/test_hashmap.c hashmap.o hash.o
-	${CC} ${CFLAGS} -o $@ $^ ${TESTFLAGS}
+	${CC} ${DBGFLAGS} -o $@ $^ ${TESTFLAGS}
 
 
 test: debug ${test}
