@@ -1,5 +1,6 @@
 #include <check.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "./util.h"
 #include "../hashmap.h"
 
@@ -229,6 +230,27 @@ START_TEST(test_hashmap_copy) {
 }
 END_TEST
 
+START_TEST(test_hashmap_resize) {
+    struct hashmap *m = hashmap_create();
+    unsigned int size = m->size;
+    ck_assert_ptr_nonnull(m);
+
+    const size_t KEYSIZE = 16;
+    char k[KEYSIZE];
+    int *v;
+    for (unsigned int i = 0; i <= 128; i++) {
+        v = malloc(sizeof *v);
+        *v = i;
+        sprintf(k, "%u", i);
+        hashmap_set(m, k, v);
+    }
+
+    /* With that many keys, it really should have expanded at least once ... */
+    ck_assert_int_gt(m->size, size);
+    hashmap_destroy(m);
+}
+END_TEST
+
 Suite *hashmap_suite(void) {
     Suite *s;
     TCase *tc;
@@ -251,6 +273,10 @@ Suite *hashmap_suite(void) {
 
     tc = tcase_create("Copy");
     tcase_add_test(tc, test_hashmap_copy);
+    suite_add_tcase(s, tc);
+
+    tc = tcase_create("Resize");
+    tcase_add_test(tc, test_hashmap_resize);
     suite_add_tcase(s, tc);
     return s;
 }

@@ -19,5 +19,5 @@ modern conveniences we've come to expect from the likes of Python, such as
 hashmap
 -------
 
-A hashmap implementation backed by singly-linked lists, using a very basic key
-hashing function.
+A hashmap implementation backed by singly-linked lists, using a very basic (and
+fast) key hashing function, supporting dynamic resizing.

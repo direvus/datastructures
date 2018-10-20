@@ -1,10 +1,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "./hashmap.h"
 #include "./hash.h"
 
 #define HASHMAP_INIT_SIZE 32
+#define HASHMAP_MAX_SIZE UINT_MAX
 #define HASHMAP_SCALE_FACTOR 2
 #define HASHMAP_MAX_LOAD 2
 
@@ -21,31 +23,35 @@ struct hashmap *hashmap_create() {
     return hashmap_create_size(HASHMAP_INIT_SIZE);
 }
 
-void hashmap_entry_destroy(struct hashmap_entry *e) {
+static void hashmap_entry_destroy(struct hashmap_entry *e, bool keep_value) {
     if (e->key) {
         free(e->key);
     }
-    if (e->value) {
+    if (e->value && !keep_value) {
         free(e->value);
     }
     free(e);
 }
 
-void hashmap_destroy(struct hashmap *m) {
-    for (size_t i = 0; i < m->size; i++) {
-        if (m->buckets[i]) {
-            struct hashmap_entry *curr, *next;
-            curr = m->buckets[i];
+static void hashmap_buckets_destroy(struct hashmap_entry **buckets, const size_t size, bool keep_values) {
+    struct hashmap_entry *curr, *next;
+    for (size_t i = 0; i < size; i++) {
+        if (buckets[i]) {
+            curr = buckets[i];
             while (curr) {
                 next = curr->next;
                 free(curr);
                 curr = next;
             }
-            hashmap_entry_destroy(m->buckets[i]);
-            m->buckets[i] = 0;
+            hashmap_entry_destroy(buckets[i], keep_values);
+            buckets[i] = 0;
         }
     }
-    free(m->buckets);
+    free(buckets);
+}
+
+void hashmap_destroy(struct hashmap *m) {
+    hashmap_buckets_destroy(m->buckets, m->size, false);
     free(m);
 }
 
@@ -64,7 +70,7 @@ void hashmap_copy(struct hashmap *dst, struct hashmap *src) {
     struct hashmap_entry *e;
     for (unsigned int i = 0; i < src->size; i++) {
         e = src->buckets[i];
-        while(e) {
+        while (e) {
             hashmap_set(dst, e->key, e->value);
             e = e->next;
         }
@@ -85,7 +91,7 @@ static inline size_t hash_index(const char *key, const size_t size) {
  * Return a pointer to the matching entry, if found, or NULL otherwise.
  */
 static struct hashmap_entry *hashmap_find(struct hashmap_entry *e, const char *k) {
-    while(e) {
+    while (e) {
         if (strcmp(e->key, k) == 0) {
             return e;
         }
@@ -97,13 +103,98 @@ static struct hashmap_entry *hashmap_find(struct hashmap_entry *e, const char *k
 bool hashmap_exists(const struct hashmap *m, const char *k) {
     size_t i = hash_index(k, m->size);
     struct hashmap_entry *e = m->buckets[i];
-    while(e) {
+    while (e) {
         if (strcmp(e->key, k) == 0) {
             return true;
         }
         e = e->next;
     }
     return false;
+}
+
+/*
+ * Create a new hashmap entry with the given key and value.
+ *
+ * Return a NULL pointer if the entry cannot be created.
+ */
+static struct hashmap_entry *hashmap_entry_create(const char *k, void *v) {
+    if (!v) {
+        return 0;
+    }
+    struct hashmap_entry *e = malloc(sizeof *e);
+    if (!e) {
+        return 0;
+    }
+
+    e->key = malloc(strlen(k) + 1);
+    if (!e->key) {
+        return 0;
+    }
+    strcpy(e->key, k);
+    e->value = v;
+    e->next = 0;
+    return e;
+}
+
+/*
+ * Set key 'k' to value 'v' in list of entries 'e'.
+ *
+ * If an entry for the given key already exists in the list, it takes the new
+ * value, and the data pointed to by the old value is freed.  Otherwise, a new
+ * entry is appended to the list.
+ *
+ * 'v' must point to alloc'd memory.  When the list of entry is destroyed, the
+ * data pointed to by 'v' is freed also.
+ *
+ * Return the first element of the resulting list, or a NULL pointer if the
+ * operation fails.
+ *
+ * If a valid pointer is passed in for 'created', it will be set to indicate
+ * whether a new entry was created.
+ */
+static struct hashmap_entry *hashmap_set_entry(
+        struct hashmap_entry *e,
+        const char *k,
+        void *v,
+        bool *created) {
+    if (created) {
+        *created = false;
+    }
+    if (!k || !v) {
+        return 0;
+    }
+    struct hashmap_entry *head = e;
+    struct hashmap_entry *tail = 0;
+
+    if (!e) {
+        /* Empty list, create and return a new entry. */
+        head = hashmap_entry_create(k, v);
+        if (head && created) {
+            *created = true;
+        }
+        return head;
+    }
+
+    while (e) {
+        if (strcmp(e->key, k) == 0) {
+            /* Key exists, update value. */
+            e->value = v;
+            return head;
+        }
+        tail = e;
+        e = e->next;
+    }
+
+    /* Key does not exist, append new entry. */
+    e = hashmap_entry_create(k, v);
+    if (!e) {
+        return 0;
+    }
+    tail->next = e;
+    if (created) {
+        *created = true;
+    }
+    return head;
 }
 
 /*
@@ -118,39 +209,58 @@ bool hashmap_exists(const struct hashmap *m, const char *k) {
  * Return whether the entry was created successfully.
  */
 bool hashmap_set(struct hashmap *m, const char *k, void *v) {
-    if (!v) {
-        return false;
-    }
     size_t i = hash_index(k, m->size);
-    struct hashmap_entry *curr = m->buckets[i];
-    struct hashmap_entry *prev = 0;
-    while(curr) {
-        if (strcmp(curr->key, k) == 0) {
-            curr->value = v;
-            return true;
+    bool created = false;
+    struct hashmap_entry *e = hashmap_set_entry(m->buckets[i], k, v, &created);
+    if (!e) {
+        return false;
+    }
+    m->buckets[i] = e;
+    if (created) {
+        m->count++;
+    }
+
+    /*
+     * Did adding this entry bring the overall load factor up to the maximum?
+     * Do we still have room to expand?  If so, then resize it.
+     */
+    if (m->count / m->size >= HASHMAP_MAX_LOAD &&
+            m->size * HASHMAP_SCALE_FACTOR <= HASHMAP_MAX_SIZE) {
+        /*
+         * Multiply the current size by the scaling factor, prepare a new
+         * bucket array of that size, copy the existing entries into the new
+         * bucket array, and then point the hashmap at the new bucket array and
+         * destroy the old one.
+         */
+        const size_t size = m->size * HASHMAP_SCALE_FACTOR;
+        struct hashmap_entry **buckets;
+        struct hashmap_entry *new;
+        buckets = calloc(size, sizeof (struct hashmap_entry *));
+
+        for (unsigned int b = 0; b < m->size; b++) {
+            e = m->buckets[b];
+            while (e) {
+                i = hash_index(e->key, size);
+                new = hashmap_set_entry(buckets[i], e->key, e->value, 0);
+                if (!new) {
+                    /*
+                     * Something has gone terribly wrong, abort the resize
+                     * operation.
+                     */
+                    hashmap_buckets_destroy(buckets, size, true);
+                    return true;
+                }
+                buckets[i] = new;
+                e = e->next;
+            }
         }
-        prev = curr;
-        curr = curr->next;
-    }
 
-    curr = malloc(sizeof *curr);
-    if (!curr) {
-        return false;
+        struct hashmap_entry **old_buckets;
+        old_buckets = m->buckets;
+        m->buckets = buckets;
+        hashmap_buckets_destroy(old_buckets, m->size, true);
+        m->size = size;
     }
-
-    curr->key = malloc(strlen(k) + 1);
-    if (!curr->key) {
-        return false;
-    }
-    strcpy(curr->key, k);
-    curr->value = v;
-    curr->next = 0;
-    if (prev) {
-        prev->next = curr;
-    } else {
-        m->buckets[i] = curr;
-    }
-    m->count++;
     return true;
 }
 
@@ -181,14 +291,14 @@ bool hashmap_delete(struct hashmap *m, const char *k) {
     size_t i = hash_index(k, m->size);
     struct hashmap_entry *curr = m->buckets[i];
     struct hashmap_entry *prev = 0;
-    while(curr) {
+    while (curr) {
         if (strcmp(curr->key, k) == 0) {
             if (prev) {
                 prev->next = curr->next;
             } else {
                 m->buckets[i] = curr->next;
             }
-            hashmap_entry_destroy(curr);
+            hashmap_entry_destroy(curr, false);
             m->count--;
             return true;
         }
