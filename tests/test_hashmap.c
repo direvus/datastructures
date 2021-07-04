@@ -241,7 +241,7 @@ START_TEST(test_hashmap_resize) {
     for (unsigned int i = 0; i <= 128; i++) {
         v = malloc(sizeof *v);
         *v = i;
-        sprintf(k, "%u", i);
+        snprintf(k, KEYSIZE, "%u", i);
         hashmap_set(m, k, v);
     }
 

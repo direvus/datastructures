@@ -40,10 +40,9 @@ static void hashmap_buckets_destroy(struct hashmap_entry **buckets, const size_t
             curr = buckets[i];
             while (curr) {
                 next = curr->next;
-                free(curr);
+                hashmap_entry_destroy(curr, keep_values);
                 curr = next;
             }
-            hashmap_entry_destroy(buckets[i], keep_values);
             buckets[i] = 0;
         }
     }
